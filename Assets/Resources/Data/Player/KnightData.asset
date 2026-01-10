@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c2a72a323466acc4989eb33f699faad4, type: 3}
-  m_Name: KnughtData
+  m_Name: KnightData
   m_EditorClassIdentifier: 
   maxHP: 100
   moveSpeed: 5
