@@ -7,6 +7,7 @@ public class PlayerDataSO : ScriptableObject
     [Header("기본 스텟")]
     public float maxHP = 100f;
     public float moveSpeed = 5.0f;
+    public float damage = 10f;
 
     [Header("스킬 세팅")]
     public float dashDuration = 0.2f;
