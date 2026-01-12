@@ -18,6 +18,7 @@ public class EnemyChaseState : EnemyBaseState
         }
         float distance = Vector3.Distance(enemy.transform.position, enemy._target.position);
 
+        if(enemy._animator != null) enemy._animator.SetBool("isMoving", true);
         if (distance > enemy.detectRange *2f)
         {
             stateMachine.ChangeState(enemy.IdleState);

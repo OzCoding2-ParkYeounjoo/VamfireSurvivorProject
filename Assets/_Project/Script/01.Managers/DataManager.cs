@@ -25,7 +25,7 @@ public class DataManager : MonoBehaviour
     }
     public void AddGold(int gold)
     {
-        currentStageGold = gold;
+        currentStageGold += gold;
     }
     public void SaveGame()
     {

@@ -7,7 +7,7 @@ public class EnemyAttackState : EnemyBaseState
 {
     private float _attackTimer;
     private float _attackCoolDown = 1.5f;
-    private float _damage = 10f;
+    private float _damage;
 
     public EnemyAttackState(EnemyController enemy, EnemyStateMachine stateMachine) : base(enemy, stateMachine) { }
 
@@ -41,13 +41,14 @@ public class EnemyAttackState : EnemyBaseState
         PlayerController player = enemy._target.GetComponent<PlayerController>();
         if (player != null)
         {
-            player.TakeDamage(_damage);
+            player.TakeDamage(enemy.damage);
             Debug.Log("플레이어에게 데미지 전달 성공");
         }
         else
         {
             Debug.Log("해당 플레이어의 스크립트를 찾지 못했습니다.");
         }
+        if (enemy._animator != null) enemy._animator.SetTrigger("Attack");
     }
     
 }

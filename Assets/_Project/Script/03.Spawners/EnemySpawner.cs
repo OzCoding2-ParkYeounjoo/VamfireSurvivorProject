@@ -2,25 +2,62 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
-
+[System.Serializable]
+public struct Wave
+{
+    public string waveName;
+    public float waveDuration;
+    public float spawnInterval;
+}
 public class EnemySpawner : MonoBehaviour
 {
-    public float spawnTIme = 1f;
-    private float timer = 0f;
+    [Header("Wave Settings")]
+    public Wave[] waves;
+    public float spawnRadius = 10f;
 
+    private int currentWaveIndex = 0;
+    private float waveTimer = 0f;
+    private float spawnTImer = 0f;
+
+    private Transform player;
+    private void Start()
+    {
+        if (PlayerController.Instance != null)
+            player = PlayerController.Instance.transform;
+    }
     private void Update()
     {
-        timer += Time.deltaTime;
-        if(timer > spawnTIme)
+        if (currentWaveIndex >= waves.Length) return;
+
+        waveTimer += Time.deltaTime;
+        spawnTImer += Time.deltaTime;
+
+        Wave currentWave = waves[currentWaveIndex];
+
+        if(spawnTImer >= currentWave.spawnInterval)
         {
-            timer = 0f;
-            spawn();
+            spawnTImer = 0f;
+            SpawnEnemy();
+        }
+        if(waveTimer >= currentWave.waveDuration)
+        {
+            currentWaveIndex++;
+            waveTimer = 0f;
+            Debug.Log($"웨이브 변경 ! 현재 웨이브 : {currentWaveIndex}");
         }
     }
-    void spawn()
+    void SpawnEnemy()
     {
         GameObject enemy = PoolManager.instance.Get();
-        enemy.transform.position = transform.position;
+        Vector3 spawnPos = Vector3.zero;
+        if (player != null)
+        {
+            Vector2 randomPoint = Random.insideUnitCircle.normalized * spawnRadius;
+            spawnPos = player.position + new Vector3(randomPoint.x, 0, randomPoint.y);
+        }
+        enemy.transform.position = spawnPos;
+
+        enemy.SetActive(true);
     }
 }
 

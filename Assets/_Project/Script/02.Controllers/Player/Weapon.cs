@@ -4,22 +4,28 @@ using UnityEngine;
 
 public class Weapon : MonoBehaviour
 {
-    public float baseDamage = 5f;
     private void OnTriggerEnter(Collider other)
     {
-        Debug.Log($"충돌 감지! 닿은 상대 :{other.name} / 태그 {other.tag}");
         if (other.CompareTag("Enemy"))
         {
-            EnemyController enemy = other.GetComponent<EnemyController>();
-            if(enemy != null)
+            // 플레이어 정보 가져오기
+            float realDamage = 0f;
+
+            if (PlayerController.Instance != null)
             {
-                float realDamage = baseDamage;
-                if(PlayerController.Instance != null)
-                {
-                    realDamage = PlayerController.Instance.currentDamage;
-                }
+                realDamage = PlayerController.Instance.currentDamage;
+            }
+            else
+            {
+                Debug.LogWarning("PlayerController Instance가 없습니다! 데미지가 0으로 들어갑니다.");
+            }
+
+            // 적에게 데미지 주기
+            EnemyController enemy = other.GetComponent<EnemyController>();
+            if (enemy != null)
+            {
                 enemy.TakeDamage(realDamage);
-                Debug.Log($"적 {other.name} 타격 성공");
+                Debug.Log($" 타격 성공! 적: {other.name} / 피해량: {realDamage}");
             }
         }
     }

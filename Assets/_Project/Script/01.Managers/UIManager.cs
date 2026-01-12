@@ -15,7 +15,10 @@ public class UIManager : MonoBehaviour
     public Image expBar;
     public TextMeshProUGUI levelText;
     public TextMeshProUGUI scoreText;
-
+    public TextMeshProUGUI timerText;
+    [Header("SkillCoolDown")]
+    public Image attackCoolDownImage;
+    public Image dashCoolDownImage;
     [Header("Popups")]
     public GameObject gameOverPanel;
     public GameObject levelUpPanel;
@@ -45,14 +48,35 @@ public class UIManager : MonoBehaviour
         scoreText.transform.DOKill();
         scoreText.transform.DOPunchScale(Vector3.one * 0.5f, 0.2f, 10, 1);
     }
+    public void TriggerAttackCoolDown(float time)
+    {
+        if (attackCoolDownImage == null) return;
+        attackCoolDownImage.fillAmount = 1f;
+        attackCoolDownImage.DOFillAmount(0f, time).SetEase(Ease.Linear);
+    }
+    public void TriggerDashCoolDown(float time)
+    {
+        if (dashCoolDownImage == null) return;
+        dashCoolDownImage.fillAmount = 1f;
+        dashCoolDownImage.DOFillAmount(0f,time).SetEase(Ease.Linear);
+    }
     public void UpdateLevel(int level)
     {
         if (levelText != null) levelText.text = $"Lv.{level}";
     }
+    public void UpdateTimer(float time)
+    {
+        if(timerText != null)
+        {
+            int min = Mathf.FloorToInt(time / 60f);
+            int sec = Mathf.FloorToInt(time % 60f);
+            timerText.text = $"{min:00}:{sec:00}";
+        }
+    }
     public void ShowGameOver() 
     {
         if (gameOverPanel == null) return;
-        gameOverPanel.SetActive(false);
+        gameOverPanel.SetActive(true);
 
         gameOverPanel.transform.localScale = Vector3.zero;
         gameOverPanel.transform.DOScale(1f, 0.5f).SetEase(Ease.OutBack);

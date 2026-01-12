@@ -1,6 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
-using TMPro.EditorUtilities;
+using TMPro;
 using UnityEditor.Rendering;
 using UnityEngine;
 using UnityEngine.InputSystem.Processors;
@@ -14,27 +14,45 @@ public class EnemyController : MonoBehaviour
     public EnemyChaseState ChaseState { get; private set; }
     public EnemyAttackState AttackState { get; private set; }
     #endregion
+    public EnemyDataSO enemyData;
     [Header("Ω∫≈»")]
-    public float maxHP = 10f;
-    public float moveSpeed = 3.0f;
+    [HideInInspector] public float maxHP;
+    [HideInInspector] public float moveSpeed ;
+    [HideInInspector] public float detectRange;
+    [HideInInspector] public float attackRange;
+    [HideInInspector] public float damage;
     private float _currentHP;
-    public float detectRange = 5f;
-    public float attackRange = 1.5f;
 
     public Rigidbody _rb { get; private set; }
     public Transform _target { get; private set; }
 
+    public Animator _animator { get; private set; }
+
     private void Awake()
     {
         _rb = GetComponent<Rigidbody>();
+        _animator = GetComponent<Animator>();
         StateMachine = new EnemyStateMachine();
         IdleState = new EnemyIdleState(this, StateMachine);
         ChaseState = new EnemyChaseState(this, StateMachine);
         AttackState = new EnemyAttackState(this, StateMachine);
+        if(enemyData != null) 
+        {
+            maxHP = enemyData.maxHP;
+            moveSpeed = enemyData.moveSpeed;
+            detectRange = enemyData.detectRange;
+            attackRange = enemyData.attackRange;
+            damage = enemyData.damage;
+
+        }
     }
     private void OnEnable()
     {
-        
+        if(_animator != null)
+        {
+            _animator.Rebind();
+            _animator.Update(0f);
+        }
         _currentHP = maxHP;
         if(_rb != null)
         {
@@ -46,6 +64,7 @@ public class EnemyController : MonoBehaviour
             _target = PlayerController.Instance.transform;
         }
         StateMachine.Initialize(IdleState);
+        GetComponent<Collider>().enabled = true;
     }
     
     private void Update()
@@ -60,6 +79,10 @@ public class EnemyController : MonoBehaviour
     {
         _currentHP -= damage;
         Debug.Log($"¿∏æ«! ≥≤¿∫√º∑¬ : {_currentHP}");
+        if(_currentHP > 0 && _animator != null)
+        {
+            _animator.SetTrigger("Hit");
+        }
         StartCoroutine(FlashRed());
         if (_currentHP <= 0) OnDead();
         
@@ -78,11 +101,23 @@ public class EnemyController : MonoBehaviour
     public void OnDead()
     {
         if (GameManager.Instance != null) GameManager.Instance.AddkillCount();
-        if (DataManager.instance != null) DataManager.instance.AddGold(10);
-        if (GameManager.Instance != null && GameManager.Instance.expGmePrefab != null)
+        if (DataManager.instance != null)
         {
-            Instantiate(GameManager.Instance.expGmePrefab, transform.position, Quaternion.identity);
+            int reward = (enemyData != null) ? enemyData.goldReward : 10;
+            DataManager.instance.AddGold(reward);
         }
+        if (GameManager.Instance != null && GameManager.Instance.expGemPrefab != null)
+        {
+            Instantiate(GameManager.Instance.expGemPrefab, transform.position, Quaternion.identity);
+        }
+        StartCoroutine(CoDead());
+    }
+    IEnumerator CoDead()
+    {
+        GetComponent<Collider>().enabled = false;
+        _rb.velocity = Vector3.zero;
+        if (_animator != null) _animator.SetTrigger("Dead");
+        yield return new WaitForSeconds(0.5f);
         gameObject.SetActive(false);
     }
 }

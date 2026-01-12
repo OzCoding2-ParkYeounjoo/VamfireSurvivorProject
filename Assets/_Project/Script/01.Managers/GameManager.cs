@@ -11,11 +11,13 @@ public class GameManager : MonoBehaviour
     public bool isGameOver = false;
     public int killCount = 0;
 
+    public float gameTime = 0f;
+
     [Header("Level System")]
     public int level = 1;
     public int currentExp = 0;
     public int maxExp = 100;
-    public GameObject expGmePrefab;
+    public GameObject expGemPrefab;
 
     public PlayerController player;
 
@@ -30,6 +32,7 @@ public class GameManager : MonoBehaviour
     private void Start()
     {
         isGameOver = false;
+        gameTime = 0f;
         Time.timeScale = 1f;
         if (player == null) player = FindObjectOfType<PlayerController>();
         if(UIManager.Instance != null)
@@ -39,14 +42,17 @@ public class GameManager : MonoBehaviour
             UIManager.Instance.UpdateExp(0, maxExp);
             UIManager.Instance.UpdateLevel(level);
             UIManager.Instance.ShowLevelUpUI(false);
+            UIManager.Instance.UpdateKillCount(0);
         }
     }
     private void Update()
     {
         if (isGameOver || player == null) return;
+        gameTime += Time.deltaTime;
         if(UIManager.Instance != null)
         {
             UIManager.Instance.UpdateHP(player.CurrentHP, player.playerData.maxHP);
+            UIManager.Instance.UpdateTimer(gameTime);
         }
     }
     public void GetExp(int amount)
@@ -60,10 +66,13 @@ public class GameManager : MonoBehaviour
         level++;
         currentExp = 0;
         maxExp += 50;
-        UIManager.Instance.UpdateLevel(level);
-        UIManager.Instance.UpdateExp(0, maxExp);
+        if(UIManager.Instance != null)
+        {
+            UIManager.Instance.UpdateLevel(level);
+            UIManager.Instance.UpdateExp(0, maxExp);
+            UIManager.Instance.ShowLevelUpUI(true);
+        }
         Time.timeScale = 0f;
-        UIManager.Instance.ShowLevelUpUI(true);
     }
     public void SelectAugment(int type)
     {
@@ -86,13 +95,15 @@ public class GameManager : MonoBehaviour
                 }
                 break;
         }
-        UIManager.Instance.ShowLevelUpUI(false);
+        if(UIManager.Instance != null)
+            UIManager.Instance.ShowLevelUpUI(false);
         Time.timeScale = 1f;
     }
     public void AddkillCount()
     {
         killCount++;
-        UIManager.Instance.UpdateKillCount(killCount);
+        if(UIManager.Instance != null)
+            UIManager.Instance.UpdateKillCount(killCount);
     }
     public void OnGameOver()
     {

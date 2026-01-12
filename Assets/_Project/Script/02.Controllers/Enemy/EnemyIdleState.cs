@@ -12,6 +12,7 @@ public class EnemyIdleState : EnemyBaseState
     {
         base.Enter();
         enemy._rb.velocity = Vector3.zero;
+        if (enemy._animator != null) enemy._animator.SetBool("isMoving", false);
     }
     public override void LogicUpdate()
     {

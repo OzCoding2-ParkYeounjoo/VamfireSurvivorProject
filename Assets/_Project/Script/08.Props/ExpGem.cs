@@ -4,12 +4,15 @@ using UnityEngine;
 
 public class ExpGem : MonoBehaviour
 {
+    [Header("Setting")]
     public int expAmount = 10;
+
     private Transform player;
     private bool isMagnet = false;
     private void OnEnable()
     {
         isMagnet = false;
+        player = null;
         GetComponent<Collider>().enabled = true;
     }
     private void Update()

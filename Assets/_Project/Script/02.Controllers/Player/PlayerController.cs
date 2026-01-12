@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.VisualScripting;
-using UnityEditor.ShaderGraph.Internal;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Rendering;
@@ -18,9 +17,12 @@ public class PlayerController : MonoBehaviour
     [HideInInspector] public float currentMoveSpeed;
     [HideInInspector] public float currentDamage;
     [HideInInspector] public float currentAttackCoolDown;
+
+    public int startDiceValue;
+    
     private float _currentHP;
     public float CurrentHP => _currentHP;
-    [Header("Cobat")]
+    [Header("Combat")]
     public GameObject weaponHitbox;
     [Header("Component")]
     private Rigidbody _rb;
@@ -49,25 +51,32 @@ public class PlayerController : MonoBehaviour
         _anim = GetComponentInChildren<Animator>();
         _sr = GetComponentInChildren<SpriteRenderer>();
         _currentHP = playerData.maxHP;
-        InitializeStats();
+        if (playerData != null)
+        {
+            InitializeStats();
+        }
+        else
+        {
+            Debug.LogError("PlayerDataSO가 연결 안되어 있습니다.");
+        }
     }
     private void Start()
     {
         if(weaponHitbox != null) weaponHitbox.SetActive(false);
+        
     }
     void InitializeStats()
     {
-        if (playerData == null)
-        {
-            Debug.LogError("PlayerDataSO가 연결 되어 있지 않습니다.");
-            return;
-        }
         currentMaxHP = playerData.maxHP;
         currentMoveSpeed = playerData.moveSpeed;
         currentDamage = playerData.damage;
         currentAttackCoolDown = playerData.attackCooldown;
-
         _currentHP = currentMaxHP;
+        int bonusDmg = PlayerPrefs.GetInt("BonusDamage", 0);
+        currentDamage = playerData.damage + bonusDmg;
+
+        Debug.Log($"기본 공격력 : {playerData.damage} +  계약보너스 : {bonusDmg} = 최종 :{currentDamage}");
+        
     }
     private void Update()
     {
@@ -124,6 +133,8 @@ public class PlayerController : MonoBehaviour
         _isDashing = true;
         _canDash = false;
         _anim.SetTrigger("Dash");
+        float totalCooldown = playerData.dashDuration + playerData.dashCooldown;
+        if (UIManager.Instance != null) UIManager.Instance.TriggerDashCoolDown(totalCooldown);
         yield return new WaitForSeconds(playerData.dashDuration);
         _isDashing = false;
         yield return new WaitForSeconds(playerData.dashCooldown);
@@ -140,7 +151,8 @@ public class PlayerController : MonoBehaviour
         _isAttacking = true;
         _moveDir = Vector3.zero;
         _anim.SetTrigger("Attack");
-        if(weaponHitbox != null) weaponHitbox.SetActive(true);
+        if (UIManager.Instance != null) UIManager.Instance.TriggerAttackCoolDown(currentAttackCoolDown);
+        if (weaponHitbox != null) weaponHitbox.SetActive(true);
         yield return new WaitForSeconds(0.3f);
         if (weaponHitbox != null) weaponHitbox.SetActive(false);
         yield return new WaitForSeconds(playerData.attackCooldown);
@@ -149,7 +161,7 @@ public class PlayerController : MonoBehaviour
     }
     public void TakeDamage(float damage)
     {
-        if (_isDead || _isDashing) return;
+        if (_isDead || _isDashing || _isInvincible) return;
         _currentHP -= damage; ;
         Debug.Log($"남은 체력 : {_currentHP}");
         if(_currentHP <= 0)
