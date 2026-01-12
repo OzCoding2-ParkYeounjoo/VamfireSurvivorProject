@@ -23,6 +23,8 @@ public class UIManager : MonoBehaviour
     public GameObject gameOverPanel;
     public GameObject levelUpPanel;
 
+    public CanvasGroup levelUpCanvasGroup;
+
     public void Awake()
     {
         if (Instance == null) Instance = this;
@@ -85,6 +87,27 @@ public class UIManager : MonoBehaviour
     {
         if(levelUpPanel == null) return;
         levelUpPanel.SetActive(show);
+        if (show)
+        {
+            if(levelUpCanvasGroup != null)
+            {
+                levelUpCanvasGroup.interactable = false;
+                levelUpCanvasGroup.blocksRaycasts = false;
+                levelUpCanvasGroup.alpha = 0.5f;
+
+                StartCoroutine(CoUnlockLevelUp());
+            }
+        }
+    }
+    IEnumerator CoUnlockLevelUp()
+    {
+        yield return new WaitForSecondsRealtime(3.0f);
+        if (levelUpCanvasGroup != null)
+        {
+            levelUpCanvasGroup.interactable = true;
+            levelUpCanvasGroup.blocksRaycasts = true;
+            levelUpCanvasGroup.alpha = 1f;
+        }
     }
 
 }

@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: EnemyData
   m_EditorClassIdentifier: 
   enemyName: Bat
-  maxHP: 15
-  moveSpeed: 3
-  damage: 4
-  detectRange: 3
+  maxHP: 20
+  moveSpeed: 5
+  damage: 10
+  detectRange: 5
   attackRange: 1.5
   expReward: 10
   goldReward: 10
