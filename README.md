@@ -1,7 +1,7 @@
 # VamfireSurvivorProject
 ### 1. Singleton Pattern (싱글톤 패턴)
 * **Purpose**: 게임의 전역 상태(점수, 시간)와 시스템(UI, 사운드)을 단일 인스턴스로 관리하고, 어디서든 쉽게 접근하기 위해 사용했습니다.
-* **Implementation**: `GameManager`, `UIManager`, `PoolManager`
+* **Implementation**: `GameManager`, `UIManager`, `PoolManager`, `DataManager`
 * **Why**: 씬(Scene) 내에서 유일해야 하는 매니저 클래스들의 중복 생성을 방지하고, 적(Enemy)이나 플레이어 객체 등 다양한 곳에서 매니저 기능에 접근해야 하는 구조적 필요성을 해결했습니다.
 
 ### 2. Finite State Machine (FSM / 상태 패턴)
